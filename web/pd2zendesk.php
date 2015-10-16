@@ -66,6 +66,7 @@ function http_request($url, $data_json, $method, $auth_type, $username, $token) 
   $response  = curl_exec($ch);
   $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
   curl_close($ch);
+  error_log($status_code + ": " + $response);
   return $status_code;
 }
 ?>
