@@ -25,12 +25,26 @@ if ($messages) foreach ($messages->messages as $webhook) {
       break;
     case "incident.acknowledge":
       $verb = "acknowledged ";
+      $url = "https://$zd_subdomain.zendesk.com/api/v2/tickets/$ticket_id/tags.json";
+      $response = http_request($url, "", "GET", "basic", $zd_username, $zd_api_token);
+      foreach($response as $tag) {
+        if ($tag == "stop_pd_updates") {
+          continue 2;
+        }
+      }
       break;
     case "incident.resolve":
       $verb = "resolved";
+      $url = "https://$zd_subdomain.zendesk.com/api/v2/tickets/$ticket_id/tags.json";
+      $response = http_request($url, "", "GET", "basic", $zd_username, $zd_api_token);
+      foreach($response as $tag) {
+        if ($tag == "stop_pd_updates") {
+          continue 2;
+        }
+      }
       break;
     default:
-      continue 2;
+      continue;
   }
   //Update the Zendesk ticket when the incident is acknowledged or resolved.
   $url = "https://$zd_subdomain.zendesk.com/api/v2/tickets/$ticket_id.json";
@@ -66,7 +80,12 @@ function http_request($url, $data_json, $method, $auth_type, $username, $token) 
   $response  = curl_exec($ch);
   $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
   curl_close($ch);
-  error_log($status_code + ": " + $response);
-  return $status_code;
+  if($status_code != "200") {
+    error_log($status_code + ": " + $response);
+  }
+  if ($method == "GET")
+    return $response;
+  else
+    return $status_code;
 }
 ?>
