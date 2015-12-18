@@ -26,21 +26,17 @@ if ($messages) foreach ($messages->messages as $webhook) {
     case "incident.acknowledge":
       $verb = "acknowledged ";
       $url = "https://$zd_subdomain.zendesk.com/api/v2/tickets/$ticket_id/tags.json";
-      $response = http_request($url, "", "GET", "basic", $zd_username, $zd_api_token);
-      foreach($response as $tag) {
-        if ($tag == "stop_pd_updates") {
+      $response = json_decode(http_request($url, "", "GET", "basic", $zd_username, $zd_api_token), true);
+      if (in_array("stop_pd_updates", $response['tags'])) {
           continue 2;
-        }
       }
       break;
     case "incident.resolve":
       $verb = "resolved";
       $url = "https://$zd_subdomain.zendesk.com/api/v2/tickets/$ticket_id/tags.json";
-      $response = http_request($url, "", "GET", "basic", $zd_username, $zd_api_token);
-      foreach($response as $tag) {
-        if ($tag == "stop_pd_updates") {
+      $response = json_decode(http_request($url, "", "GET", "basic", $zd_username, $zd_api_token), true);
+      if (in_array("stop_pd_updates", $response['tags'])) {
           continue 2;
-        }
       }
       break;
     default:
